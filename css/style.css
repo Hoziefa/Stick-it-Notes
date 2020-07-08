@@ -256,6 +256,7 @@ ul li a .edit {
   padding: 0.625rem;
   background-color: #2a363b;
   text-transform: capitalize;
+  color: white;
 }
 
 @media only screen and (max-width: 600px) {
