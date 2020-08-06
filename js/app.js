@@ -1,8 +1,8 @@
 const elements = {
     domCheckNotes: document.getElementById("no-notes"),
     domNotesContainer: document.getElementById("notes"),
-    domNoteTitle: document.getElementById("new-note-title-input"),
-    domNoteBody: document.getElementById("new-note-body-input"),
+    addNoteTitle: document.getElementById("new-note-title-input"),
+    addNoteBody: document.getElementById("new-note-body-input"),
     addNoteForm: document.getElementById("inputForm"),
     addBtn: document.querySelector(".btn"),
 };
@@ -11,6 +11,7 @@ let stickNotes = [];
 
 let editFlag = false;
 let editNote;
+let [domNoteTitle, domNoteBody] = [];
 
 const getColor = _ => {
     const hex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"];
@@ -44,22 +45,22 @@ const backToInitial = _ => {
 const addNoteController = e => {
     e.preventDefault();
 
-    const { domNoteTitle, domNoteBody } = elements;
+    const { addNoteTitle, addNoteBody } = elements;
 
-    let noteTitle = domNoteTitle.value.trim();
-    let noteBody = domNoteBody.value.trim();
+    let newNoteTitle = addNoteTitle.value.trim();
+    let newNoteBody = addNoteBody.value.trim();
 
-    if (!noteTitle || !noteBody) return;
+    if (!newNoteTitle || !newNoteBody) return;
 
-    const stickNote = { id: getID(), noteTitle, noteBody };
+    const stickNote = { id: getID(), noteTitle: newNoteTitle, noteBody: newNoteBody };
 
     if (editFlag) {
-        [editNote.querySelector("h2").textContent, editNote.querySelector("p").textContent] = [
-            noteTitle,
-            noteBody,
-        ];
+        [domNoteTitle.textContent, domNoteBody.textContent] = [newNoteTitle, newNoteBody];
 
-        Object.assign(stickNotes.find(({ id }) => id === editNote.id) || {}, { noteTitle, noteBody });
+        Object.assign(stickNotes.find(({ id }) => id === editNote.id) || {}, {
+            noteTitle: newNoteTitle,
+            noteBody: newNoteBody,
+        });
 
         localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
 
@@ -74,13 +75,13 @@ const addNoteController = e => {
 
     e.target.reset();
 
-    domNoteTitle.focus();
+    addNoteTitle.focus();
 
     elements.domCheckNotes.classList.add("hidden");
 };
 
 const handleRemoveEditController = ({ target }) => {
-    const { domCheckNotes, domNotesContainer, domNoteBody, domNoteTitle, addBtn } = elements;
+    const { domCheckNotes, domNotesContainer, addNoteBody, addNoteTitle, addBtn } = elements;
 
     const domStickNote = target.closest("li");
 
@@ -89,14 +90,13 @@ const handleRemoveEditController = ({ target }) => {
 
         editNote = domStickNote;
 
+        [domNoteTitle, domNoteBody] = [editNote?.querySelector("h2"), editNote?.querySelector("p")];
+
+        [addNoteTitle.value, addNoteBody.value] = [domNoteTitle.textContent, domNoteBody.textContent];
+
         addBtn.textContent = "edit";
 
-        [domNoteTitle.value, domNoteBody.value] = [
-            editNote.querySelector("h2").textContent,
-            editNote.querySelector("p").textContent,
-        ];
-
-        domNoteTitle.focus();
+        addNoteTitle.focus();
     }
 
     if (target.matches(".delete")) {
