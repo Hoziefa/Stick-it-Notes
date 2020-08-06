@@ -121,17 +121,19 @@ header.header .author {
   background-color: #ffd31d;
   color: #444;
   -webkit-tap-highlight-color: transparent;
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 700;
   min-width: 10%;
   text-transform: capitalize;
-  -webkit-transition: color 0.3s, background-color 0.3s;
-  transition: color 0.3s, background-color 0.3s;
+  border: 2px solid transparent;
+  -webkit-transition: color 0.3s, background-color 0.3s, border 0.3s;
+  transition: color 0.3s, background-color 0.3s, border 0.3s;
 }
 
 .form .btn:hover {
-  background-color: #444;
+  background-color: transparent;
   color: #ffd31d;
+  border-color: #ffd31d;
 }
 
 .form .btn:active {
