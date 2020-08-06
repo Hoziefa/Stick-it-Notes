@@ -11,7 +11,11 @@ let stickNotes = [];
 
 let editFlag = false;
 let editNote;
-let [domNoteTitle, domNoteBody] = [];
+
+const getID = _ => `note-${Math.floor(Math.random() * new Date().getTime()).toString(16)}`;
+
+const getDomNoteData = editNote =>
+    editNote ? { domNoteTitle: editNote?.querySelector("h2"), domNoteBody: editNote?.querySelector("p") } : {};
 
 const getColor = _ => {
     const hex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"];
@@ -19,14 +23,12 @@ const getColor = _ => {
     return `#${Array.from({ length: 6 }, _ => hex[Math.floor(Math.random() * hex.length)]).join("")}`;
 };
 
-const getID = _ => `note-${Math.floor(Math.random() * new Date().getTime()).toString(16)}`;
-
 const renderNote = ({ id, noteTitle, noteBody }) => {
     let markup = `
         <li id="${id}">
             <a href="#" style="background-color:${getColor()}">
-                <h2>${noteTitle}</h2>
-                <p>${noteBody}</p>
+                <h2 class="note-title">${noteTitle}</h2>
+                <p class="note-body">${noteBody}</p>
                 <button class="delete">X</button>
                 <button class="edit">edit</button>
             </a>
@@ -48,6 +50,7 @@ const addNoteController = e => {
     const { addNoteTitle, addNoteBody } = elements;
 
     let newNoteTitle = addNoteTitle.value.trim();
+
     let newNoteBody = addNoteBody.value.trim();
 
     if (!newNoteTitle || !newNoteBody) return;
@@ -55,6 +58,8 @@ const addNoteController = e => {
     const stickNote = { id: getID(), noteTitle: newNoteTitle, noteBody: newNoteBody };
 
     if (editFlag) {
+        const { domNoteTitle, domNoteBody } = getDomNoteData(editNote);
+
         [domNoteTitle.textContent, domNoteBody.textContent] = [newNoteTitle, newNoteBody];
 
         Object.assign(stickNotes.find(({ id }) => id === editNote.id) || {}, {
@@ -90,7 +95,7 @@ const handleRemoveEditController = ({ target }) => {
 
         editNote = domStickNote;
 
-        [domNoteTitle, domNoteBody] = [editNote?.querySelector("h2"), editNote?.querySelector("p")];
+        const { domNoteTitle, domNoteBody } = getDomNoteData(editNote);
 
         [addNoteTitle.value, addNoteBody.value] = [domNoteTitle.textContent, domNoteBody.textContent];
 
