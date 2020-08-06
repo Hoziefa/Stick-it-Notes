@@ -3,7 +3,7 @@ const elements = {
     domNotesContainer: document.getElementById("notes"),
     domNoteTitle: document.getElementById("new-note-title-input"),
     domNoteBody: document.getElementById("new-note-body-input"),
-    addStickForm: document.getElementById("inputForm"),
+    addNoteForm: document.getElementById("inputForm"),
     addBtn: document.querySelector(".btn"),
 };
 
@@ -18,9 +18,9 @@ const getColor = _ => {
     return `#${Array.from({ length: 6 }, _ => hex[Math.floor(Math.random() * hex.length)]).join("")}`;
 };
 
-const getID = _ => Math.floor(Math.random() * new Date().getTime());
+const getID = _ => `note-${Math.floor(Math.random() * new Date().getTime()).toString(16)}`;
 
-const createNote = ({ id, noteTitle, noteBody }) => {
+const renderNote = ({ id, noteTitle, noteBody }) => {
     let markup = `
         <li id="${id}">
             <a href="#" style="background-color:${getColor()}">
@@ -37,8 +37,8 @@ const createNote = ({ id, noteTitle, noteBody }) => {
 
 const backToInitial = _ => {
     editFlag = false;
-    elements.addBtn.textContent = "Create note";
-    elements.addStickForm.reset();
+    elements.addBtn.textContent = "Create Note";
+    elements.addNoteForm.reset();
 };
 
 const addNoteController = e => {
@@ -46,31 +46,34 @@ const addNoteController = e => {
 
     const { domNoteTitle, domNoteBody } = elements;
 
-    const stickNote = { id: getID(), noteTitle: domNoteTitle.value, noteBody: domNoteBody.value };
+    let noteTitle = domNoteTitle.value.trim();
+    let noteBody = domNoteBody.value.trim();
 
-    if ((!stickNote.noteTitle, !stickNote.noteBody)) return;
+    if (!noteTitle || !noteBody) return;
+
+    const stickNote = { id: getID(), noteTitle, noteBody };
 
     if (editFlag) {
-        const note = stickNotes.find(({ id }) => id === +editNote.id);
+        [editNote.querySelector("h2").textContent, editNote.querySelector("p").textContent] = [
+            noteTitle,
+            noteBody,
+        ];
 
-        let [domNoteTitleCn, domNoteBodyCn] = [editNote.querySelector("h2"), editNote.querySelector("p")];
-
-        [domNoteTitleCn.textContent, domNoteBodyCn.textContent] = [stickNote.noteTitle, stickNote.noteBody];
-
-        Object.assign(note, { noteTitle: stickNote.noteTitle, noteBody: stickNote.noteBody });
+        Object.assign(stickNotes.find(({ id }) => id === editNote.id) || {}, { noteTitle, noteBody });
 
         localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
 
         return backToInitial();
     }
 
-    createNote(stickNote);
+    renderNote(stickNote);
 
     stickNotes.push(stickNote);
 
     localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
 
     e.target.reset();
+
     domNoteTitle.focus();
 
     elements.domCheckNotes.classList.add("hidden");
@@ -88,9 +91,10 @@ const handleRemoveEditController = ({ target }) => {
 
         addBtn.textContent = "edit";
 
-        const [domNoteTitleCn, domNoteBodyCn] = [editNote.querySelector("h2"), editNote.querySelector("p")];
-
-        [domNoteTitle.value, domNoteBody.value] = [domNoteTitleCn.textContent, domNoteBodyCn.textContent];
+        [domNoteTitle.value, domNoteBody.value] = [
+            editNote.querySelector("h2").textContent,
+            editNote.querySelector("p").textContent,
+        ];
 
         domNoteTitle.focus();
     }
@@ -98,7 +102,7 @@ const handleRemoveEditController = ({ target }) => {
     if (target.matches(".delete")) {
         domStickNote.remove();
 
-        stickNotes = stickNotes.filter(({ id }) => id !== +domStickNote.id);
+        stickNotes = stickNotes.filter(({ id }) => id !== domStickNote.id);
 
         localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
 
@@ -111,12 +115,12 @@ const handleRemoveEditController = ({ target }) => {
 const getLocalNotes = _ => {
     stickNotes.push(...(JSON.parse(localStorage.getItem("stickNotes")) || []));
 
-    stickNotes.forEach(createNote);
+    stickNotes.forEach(renderNote);
 
     stickNotes.length && elements.domCheckNotes.classList.add("hidden");
 };
 
-elements.addStickForm.addEventListener("submit", addNoteController);
+elements.addNoteForm.addEventListener("submit", addNoteController);
 
 elements.domNotesContainer.addEventListener("click", handleRemoveEditController);
 
