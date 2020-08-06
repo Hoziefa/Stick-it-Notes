@@ -211,6 +211,8 @@ ul li a {
   transition: -webkit-box-shadow 0.3s, -webkit-transform 0.3s;
   transition: box-shadow 0.3s, transform 0.3s;
   transition: box-shadow 0.3s, transform 0.3s, -webkit-box-shadow 0.3s, -webkit-transform 0.3s;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 ul li a:hover, ul li a:focus {
@@ -226,13 +228,11 @@ ul li a h2 {
   font-size: 1.35rem;
   font-weight: bold;
   padding-bottom: 0.625rem;
-  word-break: break-all;
 }
 
 ul li a p {
   font-family: "Reenie Beanie", cursive;
   font-size: 1.1rem;
-  word-break: break-all;
   width: 90%;
   margin: 0 auto;
 }
