@@ -7,21 +7,25 @@ const elements = {
     addBtn: document.querySelector(".btn"),
 };
 
-let stickNotes = [];
+const state = { editFlag: false, editNote: null, notes: [] };
 
-let editFlag = false;
-let editNote;
+const setState = (newState, prevState = state || {}) => Object.assign(prevState, newState);
 
 const getID = _ => `note-${Math.floor(Math.random() * new Date().getTime()).toString(16)}`;
-
-const getDomNoteData = editNote =>
-    editNote ? { domNoteTitle: editNote?.querySelector("h2"), domNoteBody: editNote?.querySelector("p") } : {};
 
 const getColor = _ => {
     const hex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"];
 
     return `#${Array.from({ length: 6 }, _ => hex[Math.floor(Math.random() * hex.length)]).join("")}`;
 };
+
+const getDomNoteData = editNote =>
+    ({ domNoteTitle: editNote?.querySelector("h2"), domNoteBody: editNote?.querySelector("p") } || {});
+
+const isNotePresent = ({ notes = state.notes, newNoteTitle, newNoteBody }) =>
+    notes.some(({ noteTitle, noteBody }) => noteTitle === newNoteTitle && noteBody === newNoteBody);
+
+const clearDomInputs = (...domInputs) => domInputs.forEach(domInput => (domInput.value = ""));
 
 const renderNote = ({ id, noteTitle, noteBody }) => {
     let markup = `
@@ -39,7 +43,7 @@ const renderNote = ({ id, noteTitle, noteBody }) => {
 };
 
 const backToInitial = _ => {
-    editFlag = false;
+    setState({ editFlag: false });
     elements.addBtn.textContent = "Create Note";
     elements.addNoteForm.reset();
 };
@@ -49,11 +53,13 @@ const addNoteController = e => {
 
     const { addNoteTitle, addNoteBody } = elements;
 
+    const { notes, editFlag, editNote } = state;
+
     let newNoteTitle = addNoteTitle.value.trim();
 
     let newNoteBody = addNoteBody.value.trim();
 
-    if (!newNoteTitle || !newNoteBody) return;
+    if (!newNoteTitle || !newNoteBody || isNotePresent({ newNoteTitle, newNoteBody })) return;
 
     const stickNote = { id: getID(), noteTitle: newNoteTitle, noteBody: newNoteBody };
 
@@ -62,21 +68,21 @@ const addNoteController = e => {
 
         [domNoteTitle.textContent, domNoteBody.textContent] = [newNoteTitle, newNoteBody];
 
-        Object.assign(stickNotes.find(({ id }) => id === editNote.id) || {}, {
+        Object.assign(notes.find(({ id }) => id === editNote.id) || {}, {
             noteTitle: newNoteTitle,
             noteBody: newNoteBody,
         });
 
-        localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
+        localStorage.setItem("stickNotes", JSON.stringify(notes));
 
         return backToInitial();
     }
 
     renderNote(stickNote);
 
-    stickNotes.push(stickNote);
+    notes.push(stickNote);
 
-    localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
+    localStorage.setItem("stickNotes", JSON.stringify(notes));
 
     e.target.reset();
 
@@ -91,11 +97,9 @@ const handleRemoveEditController = ({ target }) => {
     const domStickNote = target.closest("li");
 
     if (target.matches(".edit")) {
-        editFlag = true;
+        setState({ editFlag: true, editNote: domStickNote });
 
-        editNote = domStickNote;
-
-        const { domNoteTitle, domNoteBody } = getDomNoteData(editNote);
+        const { domNoteTitle, domNoteBody } = getDomNoteData(state.editNote);
 
         [addNoteTitle.value, addNoteBody.value] = [domNoteTitle.textContent, domNoteBody.textContent];
 
@@ -107,9 +111,9 @@ const handleRemoveEditController = ({ target }) => {
     if (target.matches(".delete")) {
         domStickNote.remove();
 
-        stickNotes = stickNotes.filter(({ id }) => id !== domStickNote.id);
+        setState({ notes: state.notes.filter(({ id }) => id !== domStickNote.id) });
 
-        localStorage.setItem("stickNotes", JSON.stringify(stickNotes));
+        localStorage.setItem("stickNotes", JSON.stringify(state.notes));
 
         !domNotesContainer.children.length && domCheckNotes.classList.remove("hidden");
 
@@ -118,11 +122,11 @@ const handleRemoveEditController = ({ target }) => {
 };
 
 const getLocalNotes = _ => {
-    stickNotes.push(...(JSON.parse(localStorage.getItem("stickNotes")) || []));
+    setState({ notes: JSON.parse(localStorage.getItem("stickNotes")) || [] });
 
-    stickNotes.forEach(renderNote);
+    state.notes.forEach(renderNote);
 
-    stickNotes.length && elements.domCheckNotes.classList.add("hidden");
+    state.notes.length && elements.domCheckNotes.classList.add("hidden");
 };
 
 elements.addNoteForm.addEventListener("submit", addNoteController);
