@@ -11,12 +11,12 @@ const state = { editFlag: false, editNote: null, notes: [] };
 
 const setState = (newState, prevState = state || {}) => Object.assign(prevState, newState);
 
-const getID = _ => `note-${Math.floor(Math.random() * new Date().getTime()).toString(16)}`;
+const getID = () => `note-${Math.floor(Math.random() * Date.now()).toString(16)}`;
 
-const getColor = _ => {
+const getColor = () => {
     const hex = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, "A", "B", "C", "D", "E", "F"];
 
-    return `#${Array.from({ length: 6 }, _ => hex[Math.floor(Math.random() * hex.length)]).join("")}`;
+    return `#${Array.from({ length: 6 }, () => hex[Math.floor(Math.random() * hex.length)]).join("")}`;
 };
 
 const getDomNoteData = editNote =>
@@ -42,7 +42,7 @@ const renderNote = ({ id, noteTitle, noteBody }) => {
     elements.domNotesContainer.insertAdjacentHTML("beforeend", markup);
 };
 
-const backToInitial = _ => {
+const backToInitial = () => {
     setState({ editFlag: false });
     elements.addBtn.textContent = "Create Note";
     elements.addNoteForm.reset();
@@ -121,7 +121,7 @@ const handleRemoveEditController = ({ target }) => {
     }
 };
 
-const getLocalNotes = _ => {
+const getLocalNotes = () => {
     setState({ notes: JSON.parse(localStorage.getItem("stickNotes")) || [] });
 
     state.notes.forEach(renderNote);
