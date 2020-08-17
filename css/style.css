@@ -287,4 +287,11 @@ ul li a .edit {
     margin-left: 0;
   }
 }
+
+@media only screen and (max-width: 400px) {
+  ul li a {
+    min-height: 14rem;
+    width: 14rem;
+  }
+}
 /*# sourceMappingURL=style.css.map */
