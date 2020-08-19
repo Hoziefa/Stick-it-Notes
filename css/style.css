@@ -46,7 +46,7 @@ button {
   cursor: pointer;
 }
 
-:focus {
+:focus:not(.edit) {
   outline: none !important;
 }
 
@@ -231,7 +231,7 @@ ul li a h2 {
 }
 
 ul li a p {
-  font-family: "Reenie Beanie", cursive;
+  font-family: sans-serif;
   font-size: 1.1rem;
   width: 90%;
   margin: 0 auto;
@@ -253,12 +253,18 @@ ul li a .edit {
   all: unset;
   cursor: pointer;
   position: absolute;
-  bottom: 5px;
+  bottom: 10px;
   left: 15px;
-  padding: 0.625rem;
+  padding: 0.5rem 0.625rem;
   background-color: #2a363b;
+  outline: 3px solid #2a363b;
+  outline-offset: 1px;
   text-transform: capitalize;
   color: white;
+}
+
+ul li a .edit:active {
+  transform: scale(0.98);
 }
 
 @media only screen and (max-width: 600px) {
